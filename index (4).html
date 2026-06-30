@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printco | Real Estate Signage</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --brand-color: #00000;
+            --brand-dark: #2c2d2d;
+            --bg-slate-50: #f8fafc;
+            --bg-slate-100: #f1f5f9;
+            --accent-cyan: #22d3ee;
+        }
+
+        body {
+            background-color: var(--bg-slate-50);
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            scroll-behavior: smooth;
+        }
+
+        .text-brand { color: var(--brand-color) !important; }
+        .bg-brand { background-color: var(--brand-color) !important; }
+
+        /* Top Announcement Bar */
+        .promo-bar {
+            background-color: var(--brand-dark);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 0;
+        }
+
+        .btn-brand {
+            background-color: var(--brand-color);
+            color: white;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-brand:hover {
+            background-color: var(--brand-dark);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .cmyk-bar {
+            display: flex;
+            height: 4px;
+            width: 100%;
+            z-index: 1050;
+        }
+        .cmyk-c { flex: 1; background-color: #ffffff; }
+        .cmyk-m { flex: 1; background-color: #000000; }
+        .cmyk-y { flex: 1; background-color: #ffffff; }
+        .cmyk-k { flex: 1; background-color: var(--brand-color); }
+
+        /* Modern Sticky Nav with Blur */
+        .navbar {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease;
+        }
+
+        .hero-bg-accent {
+            background-color: var(--bg-slate-100);
+            border-radius: 1rem;
+        }
+        .hero-placeholder {
+            background-color: white;
+            border: 4px solid white;
+            border-radius: 1.25rem;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1.5rem 4rem rgba(0,0,0,.12);
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+        }
+        .hero-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-card {
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            border: 1px solid #ebebeb;
+            background: white;
+            cursor: pointer;
+        }
+        .product-card:hover {
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,.08) !important;
+            transform: translateY(-2px);
+        }
+        .card-img-placeholder {
+            background-color: #ebebeb;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+        }
+        .card-img-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .client-logo-wrapper {
+            height: 60px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .client-logo-wrapper img {
+            max-height: 45px;
+            max-width: 140px;
+            object-fit: contain;
+            border-radius: 4px;
+            filter: grayscale(100%) opacity(60%);
+            transition: all 0.3s ease;
+        }
+        .client-logo-wrapper:hover img {
+            filter: grayscale(0%) opacity(100%);
+        }
+
+        .nav-link { cursor: pointer; }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+
+        .product-modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .auth-modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-section-title {
+            border-left: 4px solid var(--brand-color);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--brand-color);
+            font-weight: 700;
+        }
+
+        .section-heading-line {
+            height: 4px;
+            width: 60px;
+            background-color: var(--brand-color);
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+
+        [v-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <!-- Announcement Bar (Icons Removed) -->
+    <div class="promo-bar text-center">
+        <div class="container">
+            <span class="d-none d-md-inline">Always Delivered on time.</span>
+            <span class="mx-md-3 d-none d-md-inline opacity-50">|</span>
+            <span>High quality & Fast turnarounds</span>
+        </div>
+    </div>
+
+    <div class="cmyk-bar">
+        <div class="cmyk-c"></div>
+        <div class="cmyk-m"></div>
+        <div class="cmyk-y"></div>
+        <div class="cmyk-k"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg shadow-sm sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" @click="currentPage = 'home'" style="cursor:pointer">
+                <img src="/media/images/PW-logo.png" alt="Prestige Wraps" height="40">
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-1 text-secondary"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3" :class="currentPage === 'about' ? 'text-brand fw-bold' : 'text-secondary fw-medium'" @click="currentPage = 'about'">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3 text-secondary fw-medium" @click="currentPage = 'home'; scrollToSection('contact')">Contact</a>
+                    </li>
+                    <li class="nav-item ms-lg-3" v-if="!session">
+                        <a @click="openAuthModal()" class="btn btn-outline-brand px-4 py-2 fw-bold d-inline-flex align-items-center" style="border: 2px solid var(--brand-color); color: var(--brand-color); border-radius: 0.5rem; cursor:pointer;">
+                            <i class="bi bi-person-circle me-2"></i> Client Login
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown ms-lg-3" v-else>
+                        <a class="btn btn-outline-brand px-4 py-2 fw-bold d-inline-flex align-items-center dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 2px solid var(--brand-color); color: var(--brand-color); border-radius: 0.5rem;">
+                            <i class="bi bi-person-circle me-2"></i> {{ userEmail }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                            <li><a class="dropdown-item" @click="currentPage = 'account'" style="cursor:pointer">My Account</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" @click="handleSignOut()" style="cursor:pointer">Log Out</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link text-brand fw-bold px-3 d-inline-flex align-items-center" href="tel:1800 121 131" style="background-color: var(--bg-slate-50); border-radius: 0.5rem;">
+                            <i class="bi bi-telephone-fill me-2"></i> 1800 121 131 
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <transition name="fade" mode="out-in">
+        <div :key="currentPage">
+
+            <!-- HOME PAGE -->
+            <div v-if="currentPage === 'home'">
+                <!-- Hero Section -->
+                <header class="bg-white py-5">
+                    <div class="container py-lg-5">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
+                                <h1 class="display-4 fw-bolder text-dark mb-3" style="letter-spacing: -1px;">
+                                    Victoria's Trusted<br>
+                                    <span class="text-brand">Real Estate Signage Specialists</span>
+                                </h1>
+                                <p class="lead text-secondary mb-4 fs-5">
+                                  Trusted by Victoria's best agencies, Prestige Wall & Signs produces high-quality signboards and marketing solutions at competitive prices. 
+                                </p>
+                                <div class="d-flex flex-column flex-sm-row gap-3">
+                                    <a v-if="!session" @click="openAuthModal()" class="btn btn-brand btn-lg" style="cursor:pointer">Client login <i class="bi bi-box-arrow-in-right ms-2"></i></a>
+                                    <a v-else @click="currentPage = 'account'" class="btn btn-brand btn-lg" style="cursor:pointer">My Account <i class="bi bi-box-arrow-in-right ms-2"></i></a>
+                                    <a href="https://orders.printco.com.au/contact" class="btn btn-outline-secondary btn-lg">Request a Quote</a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 hero-bg-accent p-4 p-lg-5 text-center">
+                                <div class="hero-placeholder shadow-lg">
+                                    <img :src="heroImage" alt="Featured Real Estate Project">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Trusted By -->
+                <section class="py-5 border-top border-bottom bg-white">
+                    <div class="container text-center">
+                        <p class="text-secondary fw-bold small text-uppercase mb-4">Trusted by Victoria's best agencies</p>
+                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 gap-lg-5">
+                            <div v-for="logo in trustedLogos" :key="logo.id" class="client-logo-wrapper">
+                                <img :src="logo.image" :alt="logo.name" onerror="this.style.display='none'">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PRODUCT GALLERY SECTION -->
+                <section class="py-5 bg-slate-50">
+                    <div class="container py-5">
+                        <div class="text-center mb-5">
+                            <h2 class="display-5 fw-bolder mb-3 text-dark">Our Real Estate Signage</h2>
+                            <div class="section-heading-line mb-3"></div>
+                            <p class="lead text-secondary mx-auto" style="max-width: 600px;">Everything you need to market your campaigns effectively, from the curb to the front door.</p>
+                        </div>
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            <div class="col" v-for="product in products" :key="product.id">
+                                <div class="card h-100 product-card rounded-4 border-0 shadow-sm overflow-hidden" @click="openProductDetails(product)">
+                                    <div class="card-img-placeholder">
+                                        <img :src="product.image" class="w-100 h-100" :alt="product.title">
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <h3 class="fw-bold text-dark fs-5 mb-2">{{ product.title }}</h3>
+                                        <p class="text-secondary mb-3 small">{{ product.description }}</p>
+                                        <div class="text-brand fw-bold text-decoration-none small">View Details <i class="bi bi-chevron-right"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Agency Partnerships -->
+                <section class="py-5 bg-white">
+                    <div class="container py-5">
+                        <div class="row align-items-center mb-5">
+                            <div class="col-lg-6">
+                                <h2 class="display-5 fw-bolder mb-3 text-dark">Built for Agencies</h2>
+                                <p class="lead text-secondary">Our agency partner program is designed to protect your brand and reduce long-term costs.</p>
+                            </div>
+                            <div class="col-lg-6 text-lg-end">
+                                <a href="/agency-application" class="btn btn-brand px-4 py-3 shadow-sm">Apply for Agency Account</a>
+                            </div>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-4" v-for="(feature, index) in agencyFeatures" :key="index">
+                                <div class="p-4 border border-light rounded-4 bg-slate-50 h-100 shadow-sm">
+                                    <div class="bg-brand text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 48px; height: 48px;">
+                                        <i :class="['bi', feature.icon, 'fs-5']"></i>
+                                    </div>
+                                    <h4 class="fw-bold text-dark mb-2 fs-5">{{ feature.title }}</h4>
+                                    <p class="text-secondary mb-0 fs-6">{{ feature.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact/Map -->
+                <section id="contact" class="py-5 bg-white border-top">
+                    <div class="container py-5">
+                        <div class="row align-items-center">
+                            <div class="col-lg-5 mb-5 mb-lg-0 pe-lg-5">
+                                <h2 class="display-5 fw-bolder mb-4 text-dark">Our Location</h2>
+                                <div class="d-flex mb-4 align-items-start">
+                                    <i class="bi bi-geo-alt-fill text-brand fs-3 me-3"></i>
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-1">Head Office & Production</h5>
+                                        <p class="text-secondary mb-0 fs-5">20 Cleeland Road, Oakleigh South, VIC 3167</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex mb-4 align-items-start">
+                                    <i class="bi bi-telephone-fill text-brand fs-3 me-3"></i>
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-1">Phone</h5>
+                                        <p class="mb-0 fs-5">
+                                            <a href="tel:0385516777" class="text-secondary text-decoration-none">8551 6777</a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-envelope-fill text-brand fs-3 me-3"></i>
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-1">Email</h5>
+                                        <p class="text-secondary mb-0 fs-5">
+                                            <a href="mailto:realestate@printco.com.au" class="text-secondary text-decoration-none">realestate@printco.com.au</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="rounded-4 overflow-hidden shadow-sm" style="height: 400px;">
+                                    <iframe src="https://maps.google.com/maps?q=20%20Cleeland%20road%20Oakleigh%20South&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ABOUT US PAGE -->
+            <div v-if="currentPage === 'about'">
+                <section class="py-5 bg-slate-100 min-vh-100">
+                    <div class="container py-5">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <h6 class="text-brand fw-bold text-uppercase text-center" style="letter-spacing: 1px;">About Printco</h6>
+                                <h2 class="display-5 fw-bolder text-dark text-center mb-5">Experience & Reliability</h2>
+                                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm fs-5 text-secondary" style="line-height: 1.8;">
+                                    <p class="mb-4">At Printco, we don’t just produce signboards — we support the pace and pressure of real estate.</p>
+                                    <p class="mb-4">With over 20 years of experience, we’ve become a trusted partner to some of Victoria’s leading agencies, delivering high-quality signage and marketing materials that reflect your brand at its best.</p>
+                                    <p class="mb-4">We understand that timing matters. Campaigns move fast, deadlines are tight, and presentation is everything. That’s why our team is built around responsiveness — from helping your office place orders seamlessly, to ensuring artwork, production and installation all run without delay.</p>
+                                    <p class="mb-4">Everything we produce is designed with consistency in mind, so whether it’s a single board or a full campaign rollout, your branding stays sharp, professional, and instantly recognisable.</p>
+                                    <p>From everyday stock boards to custom campaign signage, Printco is here to make your marketing look right — and get it up on time.</p>
+                                </div>
+                                <div class="text-center mt-5">
+                                    <button @click="currentPage = 'home'" class="btn btn-brand px-5">Get Started Today</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ACCOUNT PAGE -->
+            <div v-if="currentPage === 'account'">
+                <section class="py-5 bg-slate-100 min-vh-100">
+                    <div class="container py-5">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-7">
+                                <div v-if="session" class="bg-white p-4 p-md-5 rounded-4 shadow-sm text-center">
+                                    <h6 class="text-brand fw-bold text-uppercase" style="letter-spacing: 1px;">My Account</h6>
+                                    <h2 class="fw-bolder text-dark mb-4">Welcome, {{ userEmail }}</h2>
+                                    <p class="text-secondary fs-5">Your members-only area is coming soon — order history, saved artwork, and reorders will live here.</p>
+                                    <button @click="handleSignOut()" class="btn btn-outline-secondary px-4 mt-3">Log Out</button>
+                                </div>
+                                <div v-else class="bg-white p-4 p-md-5 rounded-4 shadow-sm text-center">
+                                    <h2 class="fw-bolder text-dark mb-3">Please log in</h2>
+                                    <p class="text-secondary fs-5 mb-4">You need to be signed in to view this page.</p>
+                                    <button @click="openAuthModal()" class="btn btn-brand px-4">Client Login</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </transition>
+
+    <!-- Product Detail Modal -->
+    <div v-if="showProductModal" class="modal-overlay" @click.self="showProductModal = false">
+        <transition name="fade">
+            <div class="product-modal-content shadow-2xl">
+                <div class="position-relative bg-slate-100 overflow-hidden" style="height: 350px; padding: 20px;">
+                    <img :src="selectedProduct.image" class="w-100 h-100" style="object-fit: contain;">
+                    <button @click="showProductModal = false" class="btn btn-dark position-absolute top-0 end-0 m-4 rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 40px; height: 40px; border: 2px solid white;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="p-4 p-md-5">
+                    <h6 class="text-brand fw-bold text-uppercase mb-2" style="letter-spacing: 1px;">Product Details</h6>
+                    <h2 class="display-6 fw-extrabold text-dark mb-4">{{ selectedProduct.title }}</h2>
+                    <div class="fs-5 text-secondary" style="line-height: 1.8; white-space: pre-wrap;">{{ selectedProduct.details }}</div>
+
+                    <hr class="my-5 opacity-10">
+
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <a href="https://orders.printco.com.au/contact" class="btn btn-brand btn-lg flex-grow-1 py-3">Request a Quote</a>
+                        <button @click="showProductModal = false" class="btn btn-outline-secondary btn-lg py-3">Back to Products</button>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <!-- Auth Modal -->
+    <div v-if="showAuthModal" class="modal-overlay" @click.self="closeAuthModal()">
+        <transition name="fade">
+            <div class="auth-modal-content shadow-2xl">
+                <button @click="closeAuthModal()" class="btn btn-dark position-absolute top-0 end-0 m-3 rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 36px; height: 36px; border: 2px solid white; z-index: 10;">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <div class="p-4 p-md-5">
+                    <h6 class="text-brand fw-bold text-uppercase mb-2" style="letter-spacing: 1px;">{{ authMode === 'login' ? 'Welcome Back' : 'Create an Account' }}</h6>
+                    <h2 class="fw-bolder text-dark mb-4">{{ authMode === 'login' ? 'Client Login' : 'Sign Up' }}</h2>
+
+                    <form @submit.prevent="handleAuthSubmit">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Email</label>
+                            <input type="email" class="form-control form-control-lg" v-model="authEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Password</label>
+                            <input type="password" class="form-control form-control-lg" v-model="authPassword" required minlength="6">
+                        </div>
+
+                        <p v-if="authError" class="text-danger small mb-3">{{ authError }}</p>
+                        <p v-if="authMessage" class="text-brand small mb-3">{{ authMessage }}</p>
+
+                        <button type="submit" class="btn btn-brand btn-lg w-100 mb-3" :disabled="authLoading">
+                            {{ authLoading ? 'Please wait…' : (authMode === 'login' ? 'Log In' : 'Sign Up') }}
+                        </button>
+                    </form>
+
+                    <p class="text-center text-secondary small mb-0">
+                        <span v-if="authMode === 'login'">Don't have an account? <a href="#" @click.prevent="switchAuthMode('signup')" class="text-brand fw-bold text-decoration-none">Sign up</a></span>
+                        <span v-else>Already have an account? <a href="#" @click.prevent="switchAuthMode('login')" class="text-brand fw-bold text-decoration-none">Log in</a></span>
+                    </p>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white py-5 border-top">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div>
+                <img src="/media/website2026/images/printco-logo.png" alt="Printco Logo" height="32" class="mb-3 d-block mx-auto mx-md-0" @click="currentPage = 'home'" style="cursor:pointer">
+                <p class="text-secondary small mb-0">&copy; {{ currentYear }} Printco. All rights reserved.</p>
+                <p class="text-secondary small mb-0">Contact: <a href="mailto:realestate@printco.com.au" class="text-secondary text-decoration-none">info@Prestigewraps.com.au</a></p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+    const { createApp, ref, reactive, onMounted, computed } = Vue;
+    createApp({
+        setup() {
+            // ---------------------------------------------------------
+            // SUPABASE CONFIG — replace these two values with your own,
+            // found in Supabase Dashboard > Project Settings > API
+            // ---------------------------------------------------------
+            const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
+            const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const session = ref(null);
+            const userEmail = computed(() => session.value?.user?.email || '');
+
+            const showAuthModal = ref(false);
+            const authMode = ref('login'); // 'login' | 'signup'
+            const authEmail = ref('');
+            const authPassword = ref('');
+            const authError = ref('');
+            const authMessage = ref('');
+            const authLoading = ref(false);
+
+            const openAuthModal = () => {
+                showAuthModal.value = true;
+                authMode.value = 'login';
+                authError.value = '';
+                authMessage.value = '';
+                authEmail.value = '';
+                authPassword.value = '';
+            };
+            const closeAuthModal = () => { showAuthModal.value = false; };
+            const switchAuthMode = (mode) => {
+                authMode.value = mode;
+                authError.value = '';
+                authMessage.value = '';
+            };
+
+            const handleAuthSubmit = async () => {
+                authError.value = '';
+                authMessage.value = '';
+                authLoading.value = true;
+
+                if (authMode.value === 'signup') {
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: authEmail.value,
+                        password: authPassword.value
+                    });
+                    authLoading.value = false;
+                    if (error) { authError.value = error.message; return; }
+                    if (!data.session) {
+                        authMessage.value = 'Check your inbox to confirm your email, then log in.';
+                    }
+                } else {
+                    const { error } = await supabaseClient.auth.signInWithPassword({
+                        email: authEmail.value,
+                        password: authPassword.value
+                    });
+                    authLoading.value = false;
+                    if (error) { authError.value = error.message; return; }
+                    closeAuthModal();
+                    currentPage.value = 'account';
+                }
+            };
+
+            const handleSignOut = async () => {
+                await supabaseClient.auth.signOut();
+                currentPage.value = 'home';
+            };
+
+            const mediaBase = '/media/website2026/images/';
+            const currentYear = ref(new Date().getFullYear());
+            const currentPage = ref('home');
+            const heroImage = ref(`${mediaBase}hero-real-estate-signage.jpg`);
+            const showProductModal = ref(false);
+            const selectedProduct = ref({});
+            const currentTime = ref('');
+
+            const updateTime = () => {
+                const now = new Date();
+                currentTime.value = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            onMounted(() => {
+                updateTime();
+                setInterval(updateTime, 10000);
+
+                supabaseClient.auth.getSession().then(({ data }) => {
+                    session.value = data.session;
+                });
+                supabaseClient.auth.onAuthStateChange((_event, newSession) => {
+                    session.value = newSession;
+                });
+            });
+
+            const trustedLogos = ref([
+                { id: 1, name: 'Barry Plant', image: `${mediaBase}logo-barry-plant.png` },
+                { id: 2, name: 'Jellis Craig', image: `${mediaBase}logo-jellis-craig.png` },
+                { id: 3, name: 'Buxton', image: `${mediaBase}logo-buxton.svg` },
+                { id: 4, name: 'Ray White', image: `${mediaBase}logo-ray-white.png` },
+                { id: 5, name: 'Belle Property', image: `${mediaBase}logo-belle-property.png` },
+                { id: 6, name: 'Gary Peer', image: `${mediaBase}logo-gary-peer.svg` },
+                { id: 7, name: 'The Agency', image: `${mediaBase}logo-the-agency.png` },
+                { id: 8, name: 'Woodards', image: `${mediaBase}logo-woodards.png` },
+                { id: 9, name: 'Jas Stephens', image: `${mediaBase}logo-jas-stephens.png` },
+                { id: 11, name: 'McDonald Upton', image: `${mediaBase}logo-mcdonald-upton.png` },
+                { id: 12, name: 'CBRE', image: `${mediaBase}logo-cbre.png` },
+                { id: 13, name: 'RT Edgar', image: `${mediaBase}logo-rt-edgar.png` },
+                { id: 14, name: 'Zed Real Estate', image: `${mediaBase}logo-zed-real-estate.jpg` },
+                { id: 15, name: 'Biggin Scott', image: `${mediaBase}logo-biggin-scott.png` },
+                { id: 16, name: 'Cushman & Wakefield', image: `${mediaBase}logo-cushman-wakefield.png` },
+                { id: 17, name: 'JLL', image: `${mediaBase}logo-jll.png` },
+                { id: 18, name: 'Savills', image: `${mediaBase}logo-savills.png` },
+                { id: 19, name: 'Colliers', image: `${mediaBase}logo-colliers.png` },
+                { id: 20, name: 'Stonebridge', image: `${mediaBase}logo-stonebridge.png` },
+                { id: 21, name: 'Aston', image: `${mediaBase}logo-aston.png` }
+            ]);
+
+            const products = ref([
+                {
+                    id: 1,
+                    title: 'Residential Signboards',
+                    description: 'Premium photographic prints designed to elevate your brand across every campaign.',
+                    image: `${mediaBase}product-residential-signboards.png`,
+                    details: 'Our signboards are built to maximise exposure and elevate your brand across every campaign. From high-impact photoboards that showcase premium properties, to reliable stockboards for everyday listings, we provide tailored solutions that suit every office and budget.'
+                },
+                {
+                    id: 9,
+                    title: 'Commercial Signboards',
+                    description: 'High-impact V-Boards and large-scale panels designed for high-traffic environments.',
+                    image: `${mediaBase}product-commercial-signboards.png`,
+                    details: 'For commercial agents and property managers, visibility is the priority. We produce large-scale commercial boards, including V-boards for maximum angled exposure on street corners, and flat panels for site perimeters.'
+                },
+                {
+                    id: 2,
+                    title: 'A-Frame Signs',
+                    description: 'Portable, sturdy metal A-frames perfect for Open Houses and Auctions.',
+                    image: `${mediaBase}product-a-frame-signs.jpg`,
+                    details: 'A-Frame signs are a simple yet highly effective way to capture attention at street level. Ideal for open homes, auctions, and directional use.'
+                },
+                {
+                    id: 4,
+                    title: "Brochures & DL's",
+                    description: "Premium marketing materials to leave a lasting impression during inspections.",
+                    image: `${mediaBase}product-brochures-dl-flyers.png`,
+                    details: "Brochures and DL flyers are the essential takeaway for any property campaign. We produce high-quality, full-colour marketing materials that showcase every listing with professional precision."
+                },
+                {
+                    id: 6,
+                    title: 'Sold & Leased Stickers',
+                    description: 'Durable, high-tack vinyl stickers to celebrate every campaign success.',
+                    image: `${mediaBase}product-sold-leased-stickers.png`,
+                    details: 'Mark every success with our high-quality "Sold" and "Leased" stickers and slips. Designed with high-tack adhesive and UV-resistant inks.'
+                },
+                {
+                    id: 3,
+                    title: 'Development Hoardings',
+                    description: 'High-impact perimeter fencing graphics to showcase developments at scale.',
+                    image: `${mediaBase}product-development-hoardings.png`,
+                    details: 'Development hoardings transform construction sites into powerful marketing assets. Designed to create impact at scale.'
+                },
+                {
+                    id: 5,
+                    title: 'Banners',
+                    description: 'Versatile, high-durability PVC banners for events and outdoor advertising.',
+                    image: `${mediaBase}product-banners.png`,
+                    details: 'Our banners are the perfect solution for temporary signage, event promotion, or large-scale brand visibility.'
+                },
+                {
+                    id: 7,
+                    title: 'Window Vinyls',
+                    description: 'Premium office frontage branding and property display solutions.',
+                    image: `${mediaBase}product-window-vinyls.png`,
+                    details: 'Window vinyls turn your office frontage into a powerful branding and marketing space.'
+                },
+                {
+                    id: 8,
+                    title: 'ACM Panels',
+                    description: 'Durable aluminium panels for high-end, long-term external signage.',
+                    image: `${mediaBase}product-acm-panels.png`,
+                    details: 'ACM panels offer a premium signage solution for long-term branding and high-end presentation.'
+                }
+            ]);
+
+            const galleryImages = ref([
+                'IMG_5230.jpg', 'IMG_2505.jpg', 'IMG_5368.jpg', 'IMG_0786.jpg', 'IMG_1907.jpg',
+                'IMG_1643.jpg', 'IMG_0335.JPEG', 'IMG_1481.jpg', 'IMG_2460.JPG', 'Attachment 7.JPG'
+            ]);
+
+            const agencyFeatures = ref([
+                { icon: 'bi-shield-check', title: 'Branding', description: 'We lock in your agency colors, fonts, and layouts to ensure every agent’s board is 100% compliant.' },
+                { icon: 'bi-tags', title: 'Consistent Pricing', description: 'Lock in consistent, reliable pricing for all your signage needs. Say goodbye to unexpected price hikes.' },
+                { icon: 'bi-laptop', title: 'Client Portal', description: 'A dedicated portal for your admin team to manage, approve, and track all print orders in real-time.' }
+            ]);
+
+            const scrollToSection = (id) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            };
+
+            const openProductDetails = (product) => {
+                selectedProduct.value = product;
+                showProductModal.value = true;
+            };
+
+            return {
+                currentYear, currentPage, heroImage, trustedLogos, products,
+                galleryImages, agencyFeatures, scrollToSection,
+                showProductModal, selectedProduct, openProductDetails, currentTime,
+                session, userEmail, showAuthModal, authMode, authEmail, authPassword,
+                authError, authMessage, authLoading, openAuthModal, closeAuthModal,
+                switchAuthMode, handleAuthSubmit, handleSignOut
+            }
+        }
+    }).mount('#app');
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
