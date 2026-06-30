@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prestige Wraps | Walls and Signs</title>
+    <title>Printco | Real Estate Signage</title>
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,7 +13,7 @@
 
     <style>
         :root {
-            --brand-color: #f1f5f9;
+            --brand-color: #00000;
             --brand-dark: #2c2d2d;
             --bg-slate-50: #f8fafc;
             --bg-slate-100: #f1f5f9;
@@ -43,7 +43,7 @@
 
         .btn-brand {
             background-color: var(--brand-color);
-            color: #f8fafc;
+            color: white;
             font-weight: 500;
             padding: 0.6rem 1.5rem;
             border-radius: 0.375rem;
@@ -54,7 +54,7 @@
         .btn-brand:hover {
             background-color: var(--brand-dark);
             transform: translateY(-1px);
-            color: #f8fafc;
+            color: white;
         }
 
         .cmyk-bar {
@@ -183,6 +183,36 @@
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
+
+        .btn-outline-brand {
+            border: 2px solid var(--brand-color);
+            color: var(--brand-color);
+            background: white;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-outline-brand:hover {
+            background: var(--brand-color);
+            color: white;
+        }
+
+        .badge-status-paid { background-color: #16a34a; color: #fff; }
+        .badge-status-pending { background-color: #f59e0b; color: #fff; }
+        .badge-status-overdue { background-color: #dc2626; color: #fff; }
+
+        .upload-dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            padding: 2.5rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-slate-50);
+        }
+        .upload-dropzone:hover { border-color: var(--brand-color); background: white; }
+        .upload-dropzone.uploading { opacity: 0.6; pointer-events: none; }
+
+        .file-card { background: white; }
+        .file-thumb { height: 110px; object-fit: cover; display: block; }
 
         .form-section-title {
             border-left: 4px solid var(--brand-color);
@@ -432,15 +462,63 @@
             <div v-if="currentPage === 'account'">
                 <section class="py-5 bg-slate-100 min-vh-100">
                     <div class="container py-5">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-7">
-                                <div v-if="session" class="bg-white p-4 p-md-5 rounded-4 shadow-sm text-center">
-                                    <h6 class="text-brand fw-bold text-uppercase" style="letter-spacing: 1px;">My Account</h6>
-                                    <h2 class="fw-bolder text-dark mb-4">Welcome, {{ userEmail }}</h2>
-                                    <p class="text-secondary fs-5">Your members-only area is coming soon — order history, saved artwork, and reorders will live here.</p>
-                                    <button @click="handleSignOut()" class="btn btn-outline-secondary px-4 mt-3">Log Out</button>
+                        <div v-if="session" class="row justify-content-center">
+                            <div class="col-lg-10">
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
+                                    <div>
+                                        <h6 class="text-brand fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">My Account</h6>
+                                        <h2 class="fw-bolder text-dark mb-0">Welcome, {{ userEmail }}</h2>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button @click="openNewProjectModal()" class="btn btn-brand px-4"><i class="bi bi-plus-lg me-2"></i>New Project</button>
+                                        <button @click="handleSignOut()" class="btn btn-outline-secondary px-4">Log Out</button>
+                                    </div>
                                 </div>
-                                <div v-else class="bg-white p-4 p-md-5 rounded-4 shadow-sm text-center">
+
+                                <div v-if="projectsLoading" class="text-center text-secondary py-5">
+                                    <div class="spinner-border text-brand mb-3" role="status"></div>
+                                    <p>Loading your projects…</p>
+                                </div>
+
+                                <div v-else-if="projects.length === 0" class="bg-white p-5 rounded-4 shadow-sm text-center">
+                                    <i class="bi bi-folder2-open text-secondary" style="font-size: 3rem;"></i>
+                                    <h4 class="fw-bold text-dark mt-3 mb-2">No projects yet</h4>
+                                    <p class="text-secondary mb-4">Create your first project to start uploading artwork and tracking jobs.</p>
+                                    <button @click="openNewProjectModal()" class="btn btn-brand px-4">Create a Project</button>
+                                </div>
+
+                                <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                    <div class="col" v-for="project in projects" :key="project.id">
+                                        <div class="card h-100 product-card rounded-4 border-0 shadow-sm">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <span class="badge rounded-pill px-3 py-2" :class="paymentBadgeClass(project.payment_status)">{{ project.payment_status }}</span>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light rounded-circle d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" style="width:32px;height:32px;">
+                                                            <i class="bi bi-three-dots-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                            <li><a class="dropdown-item" @click="openEditProjectModal(project)" style="cursor:pointer">Edit Details</a></li>
+                                                            <li><a class="dropdown-item text-danger" @click="confirmDeleteProject(project)" style="cursor:pointer">Delete Project</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <h5 class="fw-bold text-dark mb-1" @click="openProjectDetail(project)" style="cursor:pointer">{{ project.board_name }}</h5>
+                                                <p class="text-secondary small mb-1">{{ project.type }}</p>
+                                                <p class="text-secondary small mb-3">Client: {{ project.client_name }}</p>
+                                                <button @click="openProjectDetail(project)" class="btn btn-outline-brand btn-sm w-100">
+                                                    <i class="bi bi-images me-1"></i> View Files
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="row justify-content-center">
+                            <div class="col-lg-7">
+                                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm text-center">
                                     <h2 class="fw-bolder text-dark mb-3">Please log in</h2>
                                     <p class="text-secondary fs-5 mb-4">You need to be signed in to view this page.</p>
                                     <button @click="openAuthModal()" class="btn btn-brand px-4">Client Login</button>
@@ -518,6 +596,116 @@
         </transition>
     </div>
 
+    <!-- Project Form Modal (Create / Edit) -->
+    <div v-if="showProjectModal" class="modal-overlay" @click.self="closeProjectModal()">
+        <transition name="fade">
+            <div class="auth-modal-content shadow-2xl" style="max-width: 520px;">
+                <button @click="closeProjectModal()" class="btn btn-dark position-absolute top-0 end-0 m-3 rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 36px; height: 36px; border: 2px solid white; z-index: 10;">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <div class="p-4 p-md-5">
+                    <h6 class="text-brand fw-bold text-uppercase mb-2" style="letter-spacing: 1px;">{{ projectModalMode === 'create' ? 'New Project' : 'Edit Project' }}</h6>
+                    <h2 class="fw-bolder text-dark mb-4">Project Details</h2>
+
+                    <form @submit.prevent="saveProject">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Board Name</label>
+                            <input type="text" class="form-control form-control-lg" v-model="projectForm.board_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Type</label>
+                            <select class="form-select form-select-lg" v-model="projectForm.type" required>
+                                <option value="" disabled>Select a type…</option>
+                                <option v-for="t in projectTypeOptions" :key="t" :value="t">{{ t }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Client Name</label>
+                            <input type="text" class="form-control form-control-lg" v-model="projectForm.client_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Payment Status</label>
+                            <select class="form-select form-select-lg" v-model="projectForm.payment_status" required>
+                                <option v-for="s in paymentStatusOptions" :key="s" :value="s">{{ s }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Notes (optional)</label>
+                            <textarea class="form-control" rows="3" v-model="projectForm.notes"></textarea>
+                        </div>
+
+                        <p v-if="projectFormError" class="text-danger small mb-3">{{ projectFormError }}</p>
+
+                        <button type="submit" class="btn btn-brand btn-lg w-100" :disabled="projectFormSaving">
+                            {{ projectFormSaving ? 'Saving…' : (projectModalMode === 'create' ? 'Create Project' : 'Save Changes') }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <!-- Project Detail Modal (Files) -->
+    <div v-if="activeProject" class="modal-overlay" @click.self="closeProjectDetail()">
+        <transition name="fade">
+            <div class="product-modal-content shadow-2xl">
+                <div class="p-4 p-md-5 border-bottom">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-brand fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">{{ activeProject.type }}</h6>
+                            <h2 class="fw-bolder text-dark mb-2">{{ activeProject.board_name }}</h2>
+                            <p class="text-secondary mb-0">Client: {{ activeProject.client_name }} &nbsp;•&nbsp;
+                                <span class="badge rounded-pill px-3 py-1" :class="paymentBadgeClass(activeProject.payment_status)">{{ activeProject.payment_status }}</span>
+                            </p>
+                        </div>
+                        <button @click="closeProjectDetail()" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 40px; height: 40px; border: 2px solid white;">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <p v-if="activeProject.notes" class="text-secondary mt-3 mb-0">{{ activeProject.notes }}</p>
+                </div>
+
+                <div class="p-4 p-md-5">
+                    <h6 class="fw-bold text-dark mb-3">Files & Artwork</h6>
+
+                    <label class="upload-dropzone d-flex flex-column align-items-center justify-content-center text-center mb-4" :class="{ 'uploading': uploadingFile }">
+                        <i class="bi bi-cloud-arrow-up fs-1 text-brand mb-2"></i>
+                        <span class="fw-semibold text-dark">{{ uploadingFile ? 'Uploading…' : 'Click to upload images or files' }}</span>
+                        <span class="text-secondary small">JPG, PNG, PDF, AI, and more</span>
+                        <input type="file" multiple class="d-none" @change="handleFileUpload" :disabled="uploadingFile">
+                    </label>
+
+                    <p v-if="filesError" class="text-danger small mb-3">{{ filesError }}</p>
+
+                    <div v-if="filesLoading" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm text-brand me-2" role="status"></div> Loading files…
+                    </div>
+
+                    <div v-else-if="projectFiles.length === 0" class="text-center text-secondary py-4">
+                        No files uploaded yet.
+                    </div>
+
+                    <div v-else class="row row-cols-2 row-cols-md-3 g-3">
+                        <div class="col" v-for="file in projectFiles" :key="file.name">
+                            <div class="file-card rounded-3 overflow-hidden border position-relative">
+                                <a :href="file.url" target="_blank" rel="noopener">
+                                    <img v-if="file.isImage" :src="file.url" class="w-100 file-thumb">
+                                    <div v-else class="file-thumb d-flex align-items-center justify-content-center bg-slate-50">
+                                        <i class="bi bi-file-earmark-text fs-1 text-secondary"></i>
+                                    </div>
+                                </a>
+                                <button @click="deleteFile(file)" class="btn btn-sm btn-dark rounded-circle position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center p-0" style="width:28px;height:28px;">
+                                    <i class="bi bi-trash small"></i>
+                                </button>
+                                <p class="small text-secondary px-2 py-2 mb-0 text-truncate" :title="file.name">{{ file.displayName }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white py-5 border-top">
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
@@ -540,8 +728,8 @@
             // SUPABASE CONFIG — replace these two values with your own,
             // found in Supabase Dashboard > Project Settings > API
             // ---------------------------------------------------------
-            const SUPABASE_URL = "https://bcnoymehhktcwevqdwzm.supabase.co";
-            const SUPABASE_ANON_KEY = "sb_publishable_e0A4EAXfxZKzq-UuLb5JpA_4JLbLqnf";
+            const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
+            const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
             const session = ref(null);
@@ -602,6 +790,194 @@
                 currentPage.value = 'home';
             };
 
+            // ---------------------------------------------------------
+            // Projects (board name, type, client, payment status)
+            // ---------------------------------------------------------
+            const projectTypeOptions = [
+                'Residential Signboards', 'Commercial Signboards', 'A-Frame Signs',
+                "Brochures & DL's", 'Sold & Leased Stickers', 'Development Hoardings',
+                'Banners', 'Window Vinyls', 'ACM Panels'
+            ];
+            const paymentStatusOptions = ['Pending', 'Paid', 'Overdue'];
+
+            const projects = ref([]);
+            const projectsLoading = ref(false);
+
+            const showProjectModal = ref(false);
+            const projectModalMode = ref('create'); // 'create' | 'edit'
+            const projectForm = reactive({ id: null, board_name: '', type: '', client_name: '', payment_status: 'Pending', notes: '' });
+            const projectFormError = ref('');
+            const projectFormSaving = ref(false);
+
+            const paymentBadgeClass = (status) => {
+                if (status === 'Paid') return 'badge-status-paid';
+                if (status === 'Overdue') return 'badge-status-overdue';
+                return 'badge-status-pending';
+            };
+
+            const fetchProjects = async () => {
+                if (!session.value) return;
+                projectsLoading.value = true;
+                const { data, error } = await supabaseClient
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                projectsLoading.value = false;
+                if (!error) projects.value = data;
+            };
+
+            const openNewProjectModal = () => {
+                projectModalMode.value = 'create';
+                projectForm.id = null;
+                projectForm.board_name = '';
+                projectForm.type = '';
+                projectForm.client_name = '';
+                projectForm.payment_status = 'Pending';
+                projectForm.notes = '';
+                projectFormError.value = '';
+                showProjectModal.value = true;
+            };
+
+            const openEditProjectModal = (project) => {
+                projectModalMode.value = 'edit';
+                projectForm.id = project.id;
+                projectForm.board_name = project.board_name;
+                projectForm.type = project.type;
+                projectForm.client_name = project.client_name;
+                projectForm.payment_status = project.payment_status;
+                projectForm.notes = project.notes || '';
+                projectFormError.value = '';
+                showProjectModal.value = true;
+            };
+
+            const closeProjectModal = () => { showProjectModal.value = false; };
+
+            const saveProject = async () => {
+                projectFormError.value = '';
+                projectFormSaving.value = true;
+
+                const payload = {
+                    board_name: projectForm.board_name,
+                    type: projectForm.type,
+                    client_name: projectForm.client_name,
+                    payment_status: projectForm.payment_status,
+                    notes: projectForm.notes
+                };
+
+                let error;
+                if (projectModalMode.value === 'create') {
+                    payload.user_id = session.value.user.id;
+                    ({ error } = await supabaseClient.from('projects').insert(payload));
+                } else {
+                    ({ error } = await supabaseClient.from('projects').update(payload).eq('id', projectForm.id));
+                }
+
+                projectFormSaving.value = false;
+                if (error) { projectFormError.value = error.message; return; }
+
+                showProjectModal.value = false;
+                await fetchProjects();
+            };
+
+            const confirmDeleteProject = async (project) => {
+                if (!confirm(`Delete "${project.board_name}"? This will also remove its uploaded files.`)) return;
+
+                const folderPath = `${session.value.user.id}/${project.id}`;
+                const { data: files } = await supabaseClient.storage.from('project-files').list(folderPath);
+                if (files && files.length) {
+                    const paths = files.map(f => `${folderPath}/${f.name}`);
+                    await supabaseClient.storage.from('project-files').remove(paths);
+                }
+
+                await supabaseClient.from('projects').delete().eq('id', project.id);
+                if (activeProject.value && activeProject.value.id === project.id) closeProjectDetail();
+                await fetchProjects();
+            };
+
+            // ---------------------------------------------------------
+            // Project files (images + documents in Supabase Storage)
+            // ---------------------------------------------------------
+            const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
+            const activeProject = ref(null);
+            const projectFiles = ref([]);
+            const filesLoading = ref(false);
+            const filesError = ref('');
+            const uploadingFile = ref(false);
+
+            const openProjectDetail = async (project) => {
+                activeProject.value = project;
+                await fetchProjectFiles();
+            };
+
+            const closeProjectDetail = () => {
+                activeProject.value = null;
+                projectFiles.value = [];
+            };
+
+            const fetchProjectFiles = async () => {
+                if (!activeProject.value) return;
+                filesLoading.value = true;
+                filesError.value = '';
+
+                const folderPath = `${session.value.user.id}/${activeProject.value.id}`;
+                const { data, error } = await supabaseClient.storage.from('project-files').list(folderPath, {
+                    sortBy: { column: 'created_at', order: 'desc' }
+                });
+
+                if (error) {
+                    filesLoading.value = false;
+                    filesError.value = error.message;
+                    return;
+                }
+
+                const filesWithUrls = await Promise.all((data || []).map(async (f) => {
+                    const path = `${folderPath}/${f.name}`;
+                    const { data: signed } = await supabaseClient.storage.from('project-files').createSignedUrl(path, 3600);
+                    const ext = f.name.split('.').pop().toLowerCase();
+                    return {
+                        name: f.name,
+                        displayName: f.name.replace(/^\d+-/, ''),
+                        url: signed?.signedUrl || '',
+                        isImage: IMAGE_EXT.includes(ext)
+                    };
+                }));
+
+                projectFiles.value = filesWithUrls;
+                filesLoading.value = false;
+            };
+
+            const handleFileUpload = async (event) => {
+                const inputFiles = event.target.files;
+                if (!inputFiles || !inputFiles.length || !activeProject.value) return;
+
+                uploadingFile.value = true;
+                filesError.value = '';
+
+                const folderPath = `${session.value.user.id}/${activeProject.value.id}`;
+
+                for (const file of inputFiles) {
+                    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+                    const { error } = await supabaseClient.storage
+                        .from('project-files')
+                        .upload(`${folderPath}/${safeName}`, file);
+                    if (error) { filesError.value = error.message; }
+                }
+
+                uploadingFile.value = false;
+                event.target.value = '';
+                await fetchProjectFiles();
+            };
+
+            const deleteFile = async (file) => {
+                if (!activeProject.value) return;
+                if (!confirm(`Delete ${file.displayName}?`)) return;
+
+                const folderPath = `${session.value.user.id}/${activeProject.value.id}`;
+                await supabaseClient.storage.from('project-files').remove([`${folderPath}/${file.name}`]);
+                await fetchProjectFiles();
+            };
+
             const mediaBase = '/media/website2026/images/';
             const currentYear = ref(new Date().getFullYear());
             const currentPage = ref('home');
@@ -621,9 +997,16 @@
 
                 supabaseClient.auth.getSession().then(({ data }) => {
                     session.value = data.session;
+                    if (session.value) fetchProjects();
                 });
                 supabaseClient.auth.onAuthStateChange((_event, newSession) => {
                     session.value = newSession;
+                    if (newSession) {
+                        fetchProjects();
+                    } else {
+                        projects.value = [];
+                        activeProject.value = null;
+                    }
                 });
             });
 
@@ -745,7 +1128,13 @@
                 showProductModal, selectedProduct, openProductDetails, currentTime,
                 session, userEmail, showAuthModal, authMode, authEmail, authPassword,
                 authError, authMessage, authLoading, openAuthModal, closeAuthModal,
-                switchAuthMode, handleAuthSubmit, handleSignOut
+                switchAuthMode, handleAuthSubmit, handleSignOut,
+                projects, projectsLoading, showProjectModal, projectModalMode, projectForm,
+                projectFormError, projectFormSaving, projectTypeOptions, paymentStatusOptions,
+                paymentBadgeClass, openNewProjectModal, openEditProjectModal, closeProjectModal,
+                saveProject, confirmDeleteProject,
+                activeProject, projectFiles, filesLoading, filesError, uploadingFile,
+                openProjectDetail, closeProjectDetail, handleFileUpload, deleteFile
             }
         }
     }).mount('#app');
